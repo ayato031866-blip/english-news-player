@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,6 +10,7 @@
       --primary: #1e3a8a;
       --primary-light: #3b82f6;
       --accent: #f59e0b;
+      --danger: #dc2626;
       --highlight-bg: #fef08a;
       --highlight-border: #ca8a04;
       --bg: #f8fafc;
@@ -28,7 +30,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", sans-serif;
       background-color: var(--bg);
       color: var(--text-main);
-      padding-bottom: calc(140px + var(--safe-bottom));
+      padding-bottom: calc(155px + var(--safe-bottom));
       line-height: 1.6;
     }
     header {
@@ -38,9 +40,12 @@
       position: sticky;
       top: 0;
       z-index: 40;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .header-title {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--primary);
       display: flex;
@@ -78,6 +83,15 @@
       color: #fff;
       border-color: var(--primary);
     }
+    .tab-btn.import-tab {
+      background: #eff6ff;
+      color: var(--primary);
+      border-color: #bfdbfe;
+    }
+    .tab-btn.import-tab.active {
+      background: var(--primary);
+      color: #fff;
+    }
     .container {
       max-width: 720px;
       margin: 0 auto;
@@ -85,6 +99,12 @@
     }
     .article-header {
       margin-bottom: 16px;
+    }
+    .article-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
     }
     .article-title-ja {
       font-size: 1.05rem;
@@ -101,6 +121,17 @@
     .article-meta {
       font-size: 0.75rem;
       color: var(--text-muted);
+    }
+    .btn-delete-art {
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
     }
     .reader-card {
       background: var(--card-bg);
@@ -160,20 +191,32 @@
       border: 1px solid var(--border);
       margin-bottom: 16px;
     }
-    textarea {
+    .input-group {
+      margin-bottom: 12px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    input[type="text"], textarea {
       width: 100%;
-      height: 120px;
-      padding: 12px;
+      padding: 10px 12px;
       border-radius: 10px;
       border: 1px solid var(--border);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-family: inherit;
-      resize: vertical;
       background: #f8fafc;
+    }
+    textarea {
+      height: 140px;
+      resize: vertical;
     }
     .btn-apply {
       width: 100%;
-      margin-top: 10px;
+      margin-top: 8px;
       background: var(--primary);
       color: white;
       border: none;
@@ -185,6 +228,18 @@
     }
     .btn-apply:active {
       opacity: 0.9;
+    }
+    .btn-secondary {
+      width: 100%;
+      margin-top: 8px;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
     }
     .player-dock {
       position: fixed;
@@ -224,13 +279,13 @@
       background: #f1f5f9;
       border: 1px solid var(--border);
       color: var(--text-main);
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       cursor: pointer;
     }
     .ctrl-btn:active {
@@ -238,23 +293,29 @@
       transform: scale(0.96);
     }
     .ctrl-btn.play-btn {
-      width: 56px;
-      height: 56px;
+      width: 54px;
+      height: 54px;
       background: var(--primary);
       color: #fff;
       border: none;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
     }
-    .speed-btn {
-      padding: 6px 12px;
+    .pill-btn {
+      padding: 6px 10px;
       border-radius: 16px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       border: 1px solid var(--border);
       background: #f8fafc;
       color: var(--text-muted);
       cursor: pointer;
+      white-space: nowrap;
+    }
+    .pill-btn.native-active {
+      background: #dbeafe;
+      color: var(--primary);
+      border-color: #93c5fd;
     }
     .settings-row {
       display: flex;
@@ -263,13 +324,34 @@
       margin-top: 8px;
       font-size: 0.75rem;
       color: var(--text-muted);
+      gap: 8px;
     }
     select {
       font-size: 0.75rem;
-      padding: 4px 8px;
+      padding: 4px 6px;
       border-radius: 6px;
       border: 1px solid var(--border);
       background: #fff;
+      max-width: 190px;
+    }
+    .toast {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .toast.show {
+      opacity: 1;
     }
   </style>
 </head>
@@ -288,16 +370,18 @@
     <div id="contentArea"></div>
   </main>
 
+  <div class="toast" id="toast"></div>
+
   <div class="player-dock">
     <div class="progress-bar-wrap">
       <div class="progress-bar" id="progressBar"></div>
     </div>
     <div class="player-controls">
-      <button class="speed-btn" id="speedToggle" onclick="toggleSpeed()">1.0x</button>
-      <button class="ctrl-btn" onclick="prevChunk()" title="前へ">⏮</button>
+      <button class="pill-btn" id="speedToggle" onclick="toggleSpeed()">1.0x</button>
+      <button class="ctrl-btn" onclick="prevUnit()" title="前へ">⏮</button>
       <button class="ctrl-btn play-btn" id="playBtn" onclick="togglePlay()">▶</button>
-      <button class="ctrl-btn" onclick="nextChunk()" title="次へ">⏭</button>
-      <button class="ctrl-btn" onclick="stopAudio()" title="停止">⏹</button>
+      <button class="ctrl-btn" onclick="nextUnit()" title="次へ">⏭</button>
+      <button class="pill-btn native-active" id="modeToggle" onclick="toggleReadMode()" title="読み上げ単位の切替">文単位</button>
     </div>
     <div class="settings-row">
       <span id="chunkCounter">0 / 0</span>
@@ -309,83 +393,109 @@
   </div>
 
   <script>
+    const STORAGE_KEY = 'econ_news_player_articles_v1';
+
     const DEFAULT_ARTICLES = [
       {
         id: "news_1",
-        titleJa: "為替相場でドル円が160円近辺へ迫る、当局による介入警戒感が再燃",
-        titleEn: "Dollar-Yen Approaches 160 Threshold Amid Renewed Intervention Vigilance",
-        source: "みんかぶFX / 外為どっとコム (2026年11月12日)",
-        contentJa: "外国為替市場において、米国の底堅いインフレ指標や長期金利の上昇を背景にドル買い圧力が強まり、ドル・円相場は一時1ドル＝160円をうかがう展開となりました。日米の実質金利差が意識される一方、急激な円安進行に対して日本政府・財務省による為替介入や口頭牽制への警戒感が急速に高まっています。",
+        titleJa: "東京為替市場でドル円が159円60銭台で推移、160円台接近で介入警戒感",
+        titleEn: "Dollar-Yen Trades Near 159.60 Amid Intervention Vigilance",
+        source: "みんかぶFX / 外為どっとコム (2026年11月16日)",
+        contentJa: "東京外国為替市場において、ドル・円相場は1ドル＝159円60銭台を中心に推移しています。米連邦準備制度理事会（FRB）高官による追加利上げの必要性を巡る発言や米10年債利回りの上昇がドル買いを支える一方、財務相による為替動向への牽制発言や日米協調介入への警戒感から、160円の大台付近では上値が抑えられる展開となっています。",
         chunks: [
-          "In foreign exchange markets, ",
-          "the U.S. dollar-yen currency pair ",
-          "approached the key 160 threshold, ",
-          "driven by resilient U.S. inflation data ",
-          "and firm Treasury yields. ",
-          "While broad interest rate differentials ",
-          "continue to spur dollar purchases, ",
-          "market participants remain on high alert ",
-          "for verbal warnings ",
-          "or direct currency interventions ",
-          "by Japanese monetary authorities."
+          "In the Tokyo foreign exchange market, ",
+          "the U.S. dollar-yen currency pair traded around the 159.60 range. ",
+          "While remarks from Federal Reserve officials regarding potential rate hikes ",
+          "and rising 10-year U.S. Treasury yields underpinned dollar demand, ",
+          "upward momentum was capped near the key 160 threshold ",
+          "amid verbal warnings from Finance Minister Satsuki Katayama ",
+          "and market vigilance over potential U.S.-Japan coordinated currency intervention."
         ]
       },
       {
         id: "news_2",
-        titleJa: "政府、日銀のETF売却益の財源化を検討へ",
-        titleEn: "Government Considers Utilizing BOJ ETF Sale Profits for Economic Security",
-        source: "内閣府 / 日本成長戦略会議 (2026年11月)",
-        contentJa: "政府は、日本銀行が年間売却ペースの引き上げを決定した保有ETF（上場投資信託）の追加売却益について、経済安全保障分野を対象とする特別会計の財源として位置づける方針を示しました。つなぎ国債の発行構想を含め、具体的な予算措置について今後の編成過程で検討が進められます。",
+        titleJa: "7〜9月期実質GDP速報値を公表、緩やかな成長継続か焦点",
+        titleEn: "Cabinet Office Releases Preliminary Q3 Real GDP Figures",
+        source: "内閣府 / みんかぶFX (2026年11月16日)",
+        contentJa: "内閣府は2026年7〜9月期（第3四半期）の実質国内総生産（GDP）1次速報値を公表します。市場予想では前期比で小幅なプラス成長が見込まれており、物価高の影響を受けつつも個人消費や企業の設備投資がどの程度景気を下支えしているか、日本銀行の今後の金融政策判断にも影響を与える重要指標として注目されています。",
         chunks: [
-          "The Japanese government outlined plans ",
-          "to utilize anticipated profits ",
-          "from the Bank of Japan's accelerated ETF sales ",
-          "as a funding source for economic security initiatives ",
-          "under a designated special account. ",
-          "While the central bank decided to ramp up ",
-          "its annual divestment pace, ",
-          "fiscal authorities are preparing ",
-          "to examine the precise budgetary framework, ",
-          "including bridging bond issuances, ",
-          "in upcoming budget compilations."
+          "The Cabinet Office is scheduled to release ",
+          "preliminary real gross domestic product (GDP) figures ",
+          "for the third quarter of 2026. ",
+          "With market consensus pointing to modest quarter-on-quarter growth, ",
+          "investors are closely scrutinizing how private consumption and capital expenditures ",
+          "supported economic activity amid lingering inflation, ",
+          "as the outcome will influence the Bank of Japan's upcoming policy decisions."
         ]
       },
       {
         id: "news_3",
-        titleJa: "日銀の「物価目標2%到達」判断と追加利上げを巡る市場の思惑",
-        titleEn: "Market Speculation Rises on Potential Additional Rate Hikes by BOJ",
-        source: "日本銀行 / ダイヤモンド・オンライン (2026年11月)",
-        contentJa: "日本銀行が基調的な物価上昇率について「目標の2％に到達した」との判断を公表したことを受け、市場では年内から来年初めにかけての追加利上げシナリオが強く意識されています。エコノミストの間では段階的な利上げ継続が見込まれる一方、実質賃金の伸び悩みや国内消費への影響を見極める慎重論も交錯しています。",
+        titleJa: "東証の投資部門別売買動向：海外投資家が2週ぶり売り越し",
+        titleEn: "Foreign Investors Turn Net Sellers on Tokyo Stock Exchange",
+        source: "東京証券取引所 / 株探ニュース (2026年11月15日)",
+        contentJa: "東京証券取引所などがまとめた11月第1週の投資部門別売買動向によると、海外投資家は現物と先物の合算で177億円の売り越しとなり、2週ぶりの売り越しに転じました。個人投資家も売り越しとなる一方、年金積立金などの動きを反映する信託銀行は2,553億円の買い越しとなり、相場の押し目を拾う動きが確認されました。",
         chunks: [
-          "Following the Bank of Japan's confirmation ",
-          "that underlying inflation has met its 2% price stability target, ",
-          "speculation regarding further interest rate hikes ",
-          "by early next year ",
-          "has solidified across financial markets. ",
-          "While many economists expect ",
-          "gradual policy tightening to proceed, ",
-          "analysts are closely monitoring ",
-          "sluggish real wage growth ",
-          "and its dampening impact on private consumption."
+          "According to trading data by investor type for the first week of November ",
+          "compiled by the Tokyo Stock Exchange, ",
+          "foreign investors turned net sellers for the first time in two weeks, ",
+          "offloading a combined 17.7 billion yen in cash equities and futures. ",
+          "Individual investors also remained net sellers for the third consecutive week, ",
+          "whereas trust banks—often reflecting pension fund rebalancing—",
+          "posted net purchases of 255.3 billion yen, ",
+          "absorbing downward market pressure."
         ]
       }
     ];
 
-    let articles = [...DEFAULT_ARTICLES];
+    let articles = [];
     let currentTabIndex = 0;
-    let currentChunkIndex = 0;
+    let currentUnitIndex = 0;
     let isPlaying = false;
     let currentUtterance = null;
     let playbackRate = 1.0;
+    let readBySentence = true; // true: 文単位で滑らかに読み上げ / false: チャンク単位
     let availableVoices = [];
     let selectedVoice = null;
+    let pauseTimer = null;
 
     let customData = {
       rawText: "",
       chunks: []
     };
 
+    function loadArticles() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            articles = parsed;
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load articles from storage", e);
+      }
+      articles = [...DEFAULT_ARTICLES];
+    }
+
+    function saveArticles() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(articles));
+      } catch (e) {
+        console.error("Failed to save articles", e);
+      }
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    }
+
     function init() {
+      loadArticles();
       renderTabs();
       renderContent();
       initSpeech();
@@ -402,23 +512,46 @@
       }
     }
 
+    // ネイティブに近い高品質音声を優先スコアリングして並べる
+    function scoreVoice(voice) {
+      const name = voice.name.toLowerCase();
+      const lang = voice.lang.toLowerCase();
+      let score = 0;
+      if (lang === 'en-us' || lang === 'en_us') score += 30;
+      else if (lang === 'en-gb' || lang === 'en_gb') score += 20;
+      else if (lang.startsWith('en')) score += 10;
+
+      if (name.includes('natural')) score += 50;
+      if (name.includes('neural')) score += 45;
+      if (name.includes('google us english')) score += 40;
+      if (name.includes('google uk english')) score += 35;
+      if (name.includes('samantha') || name.includes('daniel') || name.includes('ava') || name.includes('allison')) score += 35;
+      if (name.includes('premium') || name.includes('enhanced')) score += 30;
+      if (!voice.localService) score += 15; // クラウド高品質音声を優先
+      return score;
+    }
+
     function populateVoices() {
-      availableVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+      const allEn = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('en'));
+      availableVoices = allEn.sort((a, b) => scoreVoice(b) - scoreVoice(a));
+
       const select = document.getElementById('voiceSelect');
+      const prevVoiceURI = selectedVoice ? selectedVoice.voiceURI : null;
       select.innerHTML = '';
+
       availableVoices.forEach((voice, i) => {
         const opt = document.createElement('option');
         opt.value = i;
         opt.textContent = `${voice.name} (${voice.lang})`;
-        if (voice.lang === 'en-US' && !selectedVoice) {
+        if (prevVoiceURI && voice.voiceURI === prevVoiceURI) {
+          opt.selected = true;
+          selectedVoice = voice;
+        } else if (!prevVoiceURI && i === 0) {
           opt.selected = true;
           selectedVoice = voice;
         }
         select.appendChild(opt);
       });
-      if (!selectedVoice && availableVoices.length > 0) {
-        selectedVoice = availableVoices[0];
-      }
     }
 
     function changeVoice() {
@@ -426,7 +559,7 @@
       selectedVoice = availableVoices[idx];
       if (isPlaying) {
         stopAudio();
-        playChunk(currentChunkIndex);
+        playUnit(currentUnitIndex);
       }
     }
 
@@ -443,233 +576,88 @@
 
       const customBtn = document.createElement('button');
       customBtn.className = `tab-btn ${currentTabIndex === 'custom' ? 'active' : ''}`;
-      customBtn.textContent = "自由入力 (Custom)";
+      customBtn.textContent = "自由入力";
       customBtn.onclick = () => switchTab('custom');
       wrap.appendChild(customBtn);
+
+      const importBtn = document.createElement('button');
+      importBtn.className = `tab-btn import-tab ${currentTabIndex === 'import' ? 'active' : ''}`;
+      importBtn.textContent = "＋ ニュース追加";
+      importBtn.onclick = () => switchTab('import');
+      wrap.appendChild(importBtn);
     }
 
     function switchTab(index) {
       stopAudio();
       currentTabIndex = index;
-      currentChunkIndex = 0;
+      currentUnitIndex = 0;
       renderTabs();
       renderContent();
       updatePlayerState();
     }
 
-    function getCurrentChunks() {
+    function getRawChunks() {
       if (currentTabIndex === 'custom') {
         return customData.chunks;
       }
-      return articles[currentTabIndex].chunks;
+      if (typeof currentTabIndex === 'number' && articles[currentTabIndex]) {
+        return articles[currentTabIndex].chunks;
+      }
+      return [];
+    }
+
+    // 読み上げ単位のリストを取得（文単位 or チャンク単位）
+    function getPlayUnits() {
+      const chunks = getRawChunks();
+      if (chunks.length === 0) return [];
+
+      if (!readBySentence) {
+        return chunks.map((text, idx) => ({
+          text: text.trim(),
+          chunkIndices: [idx]
+        }));
+      }
+
+      // 文末（. ! ?）ごとにチャンクを連結し、ネイティブの自然な抑揚で1文ずつ読み上げる
+      const units = [];
+      let bufferText = "";
+      let bufferIndices = [];
+
+      chunks.forEach((chunk, idx) => {
+        const cleaned = chunk.trim();
+        bufferText += (bufferText ? " " : "") + cleaned;
+        bufferIndices.push(idx);
+
+        if (/[.!?]["']?$/.test(cleaned) || idx === chunks.length - 1) {
+          units.push({
+            text: bufferText,
+            chunkIndices: [...bufferIndices]
+          });
+          bufferText = "";
+          bufferIndices = [];
+        }
+      });
+
+      return units;
+    }
+
+    function parseChunksFromText(text) {
+      if (!text) return [];
+      if (text.includes('/')) {
+        return text.split('/').map(s => s.trim() + ' ').filter(s => s.length > 1);
+      } else {
+        const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+        return sentences.map(s => s.trim() + ' ');
+      }
     }
 
     function renderContent() {
       const area = document.getElementById('contentArea');
       area.innerHTML = '';
 
-      if (currentTabIndex === 'custom') {
+      if (currentTabIndex === 'import') {
         area.innerHTML = `
           <div class="custom-input-card">
-            <h3 style="font-size:1rem;margin-bottom:8px;">任意の英文を貼り付け</h3>
-            <textarea id="customTextInput" placeholder="スラッシュ ( / ) やピリオドで区切った英文を貼り付けてください...">${customData.rawText}</textarea>
-            <button class="btn-apply" onclick="applyCustomText()">テキストを反映して読み込む</button>
-          </div>
-          <div class="reader-card">
-            <div class="card-label"><span>朗読スクリプト</span></div>
-            <div class="chunks-container" id="chunksContainer"></div>
-          </div>
-        `;
-        renderChunksView();
-        return;
-      }
-
-      const art = articles[currentTabIndex];
-      area.innerHTML = `
-        <div class="article-header">
-          <div class="article-title-ja">${art.titleJa}</div>
-          <div class="article-title-en">${art.titleEn}</div>
-          <div class="article-meta">出典: ${art.source}</div>
-        </div>
-        <div class="reader-card">
-          <div class="card-label"><span>English Script (タップして再生)</span></div>
-          <div class="chunks-container" id="chunksContainer"></div>
-        </div>
-        <div class="translation-box">
-          <strong style="color:var(--primary);display:block;margin-bottom:4px;">日本語解説:</strong>
-          ${art.contentJa}
-        </div>
-      `;
-      renderChunksView();
-    }
-
-    function renderChunksView() {
-      const container = document.getElementById('chunksContainer');
-      if (!container) return;
-      container.innerHTML = '';
-      const chunks = getCurrentChunks();
-
-      if (chunks.length === 0) {
-        container.innerHTML = '<span style="color:var(--text-muted);font-size:0.95rem;">英文がセットされていません。上のボックスに入力してください。</span>';
-        return;
-      }
-
-      chunks.forEach((chunk, i) => {
-        const span = document.createElement('span');
-        span.className = `chunk-bubble ${i === currentChunkIndex && isPlaying ? 'active' : ''}`;
-        span.id = `chunk-${i}`;
-        span.textContent = chunk;
-        span.onclick = () => {
-          stopAudio();
-          currentChunkIndex = i;
-          playChunk(i);
-        };
-        container.appendChild(span);
-      });
-      updatePlayerState();
-    }
-
-    function applyCustomText() {
-      const val = document.getElementById('customTextInput').value.trim();
-      customData.rawText = val;
-      if (!val) {
-        customData.chunks = [];
-      } else {
-        if (val.includes('/')) {
-          customData.chunks = val.split('/').map(s => s.trim() + ' ').filter(s => s.length > 1);
-        } else {
-          const sentences = val.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [val];
-          customData.chunks = sentences.map(s => s.trim() + ' ');
-        }
-      }
-      currentChunkIndex = 0;
-      renderChunksView();
-    }
-
-    function togglePlay() {
-      if (isPlaying) {
-        pauseAudio();
-      } else {
-        const chunks = getCurrentChunks();
-        if (chunks.length === 0) return;
-        playChunk(currentChunkIndex);
-      }
-    }
-
-    function playChunk(index) {
-      const chunks = getCurrentChunks();
-      if (index >= chunks.length) {
-        stopAudio();
-        currentChunkIndex = 0;
-        updatePlayerState();
-        return;
-      }
-
-      window.speechSynthesis.cancel();
-      isPlaying = true;
-      currentChunkIndex = index;
-      updatePlayerState();
-
-      const text = chunks[index];
-      currentUtterance = new SpeechSynthesisUtterance(text);
-      currentUtterance.rate = playbackRate;
-      if (selectedVoice) {
-        currentUtterance.voice = selectedVoice;
-      }
-
-      currentUtterance.onend = () => {
-        if (isPlaying) {
-          playChunk(currentChunkIndex + 1);
-        }
-      };
-
-      currentUtterance.onerror = (e) => {
-        console.error("Speech error", e);
-        stopAudio();
-      };
-
-      window.speechSynthesis.speak(currentUtterance);
-    }
-
-    function pauseAudio() {
-      window.speechSynthesis.cancel();
-      isPlaying = false;
-      updatePlayerState();
-    }
-
-    function stopAudio() {
-      window.speechSynthesis.cancel();
-      isPlaying = false;
-      updatePlayerState();
-    }
-
-    function nextChunk() {
-      const chunks = getCurrentChunks();
-      if (currentChunkIndex < chunks.length - 1) {
-        currentChunkIndex++;
-        if (isPlaying) {
-          playChunk(currentChunkIndex);
-        } else {
-          updatePlayerState();
-        }
-      }
-    }
-
-    function prevChunk() {
-      if (currentChunkIndex > 0) {
-        currentChunkIndex--;
-        if (isPlaying) {
-          playChunk(currentChunkIndex);
-        } else {
-          updatePlayerState();
-        }
-      }
-    }
-
-    function toggleSpeed() {
-      const rates = [0.8, 1.0, 1.2];
-      let curIdx = rates.indexOf(playbackRate);
-      let nextIdx = (curIdx + 1) % rates.length;
-      playbackRate = rates[nextIdx];
-      document.getElementById('speedToggle').textContent = playbackRate.toFixed(1) + 'x';
-      if (isPlaying) {
-        playChunk(currentChunkIndex);
-      }
-    }
-
-    function updatePlayerState() {
-      const playBtn = document.getElementById('playBtn');
-      if (playBtn) {
-        playBtn.textContent = isPlaying ? '⏸' : '▶';
-      }
-
-      const chunks = getCurrentChunks();
-      const total = chunks.length;
-      const counter = document.getElementById('chunkCounter');
-      if (counter) {
-        counter.textContent = total > 0 ? `${currentChunkIndex + 1} / ${total}` : '0 / 0';
-      }
-
-      const bar = document.getElementById('progressBar');
-      if (bar) {
-        const pct = total > 0 ? ((currentChunkIndex + 1) / total) * 100 : 0;
-        bar.style.width = pct + '%';
-      }
-
-      for (let i = 0; i < total; i++) {
-        const el = document.getElementById(`chunk-${i}`);
-        if (el) {
-          if (i === currentChunkIndex && isPlaying) {
-            el.classList.add('active');
-            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          } else {
-            el.classList.remove('active');
-          }
-        }
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', init);
-  </script>
-</body>
-</html>
+            <h3 style="font-size:1rem;margin-bottom:6px;color:var(--primary);">📥 ニュースJSON一括取り込み</h3>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;">
+    
