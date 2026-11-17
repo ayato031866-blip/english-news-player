@@ -1,663 +1,308 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Economic News Audio Player</title>
   <style>
     :root {
-      --primary: #1e3a8a;
-      --primary-light: #3b82f6;
-      --accent: #f59e0b;
-      --danger: #dc2626;
-      --highlight-bg: #fef08a;
-      --highlight-border: #ca8a04;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --safe-bottom: env(safe-area-inset-bottom, 16px);
+      --primary: #1e3a8a; --primary-light: #3b82f6; --danger: #dc2626;
+      --hl-bg: #fef08a; --hl-bd: #ca8a04; --bg: #f8fafc; --card: #ffffff;
+      --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+      --safe: env(safe-area-inset-bottom, 16px);
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
-      padding-bottom: calc(155px + var(--safe-bottom));
-      line-height: 1.6;
-    }
-    header {
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .header-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .tabs-wrapper {
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-      overflow-x: auto;
-      white-space: nowrap;
-      padding: 8px 12px;
-      display: flex;
-      gap: 8px;
-      scrollbar-width: none;
-    }
-    .tabs-wrapper::-webkit-scrollbar {
-      display: none;
-    }
-    .tab-btn {
-      display: inline-flex;
-      align-items: center;
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border: 1px solid var(--border);
-      background: #f1f5f9;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab-btn.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-    }
-    .tab-btn.import-tab {
-      background: #eff6ff;
-      color: var(--primary);
-      border-color: #bfdbfe;
-    }
-    .tab-btn.import-tab.active {
-      background: var(--primary);
-      color: #fff;
-    }
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-    .article-header {
-      margin-bottom: 16px;
-    }
-    .article-top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-    }
-    .article-title-ja {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-      line-height: 1.4;
-    }
-    .article-title-en {
-      font-size: 0.9rem;
-      color: var(--primary-light);
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .article-meta {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .btn-delete-art {
-      background: #fee2e2;
-      color: var(--danger);
-      border: 1px solid #fecaca;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .reader-card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 18px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid var(--border);
-      margin-bottom: 16px;
-    }
-    .card-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .chunks-container {
-      font-size: 1.15rem;
-      line-height: 1.9;
-      letter-spacing: 0.01em;
-    }
-    .chunk-bubble {
-      display: inline;
-      padding: 3px 6px;
-      margin: 2px 1px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-    .chunk-bubble:active {
-      background: #e2e8f0;
-    }
-    .chunk-bubble.active {
-      background-color: var(--highlight-bg);
-      box-shadow: 0 0 0 2px var(--highlight-border);
-      font-weight: 700;
-      color: #78350f;
-    }
-    .translation-box {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 0.88rem;
-      color: #334155;
-      line-height: 1.7;
-      border-left: 4px solid var(--primary-light);
-      margin-top: 8px;
-    }
-    .custom-input-card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 16px;
-      border: 1px solid var(--border);
-      margin-bottom: 16px;
-    }
-    .input-group {
-      margin-bottom: 12px;
-    }
-    .input-group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      font-size: 0.92rem;
-      font-family: inherit;
-      background: #f8fafc;
-    }
-    textarea {
-      height: 140px;
-      resize: vertical;
-    }
-    .btn-apply {
-      width: 100%;
-      margin-top: 8px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-apply:active {
-      opacity: 0.9;
-    }
-    .btn-secondary {
-      width: 100%;
-      margin-top: 8px;
-      background: #f1f5f9;
-      color: var(--text-main);
-      border: 1px solid var(--border);
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .player-dock {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border);
-      padding: 10px 16px calc(12px + var(--safe-bottom));
-      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
-      z-index: 50;
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    .progress-bar-wrap {
-      width: 100%;
-      height: 4px;
-      background: #e2e8f0;
-      border-radius: 2px;
-      margin-bottom: 10px;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: var(--primary-light);
-      transition: width 0.2s;
-    }
-    .player-controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .ctrl-btn {
-      background: #f1f5f9;
-      border: 1px solid var(--border);
-      color: var(--text-main);
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.05rem;
-      cursor: pointer;
-    }
-    .ctrl-btn:active {
-      background: #e2e8f0;
-      transform: scale(0.96);
-    }
-    .ctrl-btn.play-btn {
-      width: 54px;
-      height: 54px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      font-size: 1.35rem;
-      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
-    }
-    .pill-btn {
-      padding: 6px 10px;
-      border-radius: 16px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      border: 1px solid var(--border);
-      background: #f8fafc;
-      color: var(--text-muted);
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .pill-btn.native-active {
-      background: #dbeafe;
-      color: var(--primary);
-      border-color: #93c5fd;
-    }
-    .settings-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 8px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      gap: 8px;
-    }
-    select {
-      font-size: 0.75rem;
-      padding: 4px 6px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #fff;
-      max-width: 190px;
-    }
-    .toast {
-      position: fixed;
-      top: 70px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0f172a;
-      color: #fff;
-      padding: 10px 18px;
-      border-radius: 24px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s;
-    }
-    .toast.show {
-      opacity: 1;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding-bottom: calc(155px + var(--safe)); line-height: 1.6; }
+    header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 16px; position: sticky; top: 0; z-index: 40; font-size: 1.05rem; font-weight: 700; color: var(--primary); }
+    .tabs { background: var(--card); border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; padding: 8px 12px; display: flex; gap: 8px; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { padding: 7px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; border: 1px solid var(--border); background: #f1f5f9; color: var(--muted); cursor: pointer; }
+    .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .tab.add { background: #eff6ff; color: var(--primary); border-color: #bfdbfe; }
+    .tab.add.active { background: var(--primary); color: #fff; }
+    .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+    .card { background: var(--card); border-radius: 14px; padding: 16px; border: 1px solid var(--border); margin-bottom: 14px; }
+    .title-ja { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .title-en { font-size: 0.9rem; color: var(--primary-light); font-weight: 600; margin-bottom: 6px; }
+    .meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; }
+    .chunks { font-size: 1.12rem; line-height: 1.9; }
+    .chunk { display: inline; padding: 2px 5px; border-radius: 6px; cursor: pointer; }
+    .chunk.active { background: var(--hl-bg); box-shadow: 0 0 0 2px var(--hl-bd); font-weight: 700; color: #78350f; }
+    .trans { background: #f8fafc; border-radius: 10px; padding: 12px; font-size: 0.88rem; color: #334155; border-left: 4px solid var(--primary-light); }
+    input, textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 16px; background: #fff; color: var(--text); margin-bottom: 10px; -webkit-user-select: text; user-select: text; }
+    textarea { height: 130px; }
+    .row { display: flex; gap: 8px; }
+    .btn { flex: 1; background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 0.92rem; font-weight: 600; cursor: pointer; }
+    .btn-sub { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; padding: 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn-del { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.98); border-top: 1px solid var(--border); padding: 10px 16px calc(12px + var(--safe)); z-index: 50; max-width: 720px; margin: 0 auto; }
+    .bar-wrap { width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin-bottom: 10px; }
+    .bar { height: 100%; width: 0%; background: var(--primary-light); transition: width 0.2s; }
+    .ctrls { display: flex; align-items: center; justify-content: space-between; }
+    .cbtn { background: #f1f5f9; border: 1px solid var(--border); width: 42px; height: 42px; border-radius: 50%; font-size: 1.05rem; cursor: pointer; }
+    .pbtn { width: 52px; height: 52px; background: var(--primary); color: #fff; border: none; border-radius: 50%; font-size: 1.3rem; cursor: pointer; }
+    .pill { padding: 6px 10px; border-radius: 16px; font-size: 0.78rem; font-weight: 700; border: 1px solid var(--border); background: #f8fafc; color: var(--muted); cursor: pointer; }
+    .pill.on { background: #dbeafe; color: var(--primary); border-color: #93c5fd; }
+    .srow { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.75rem; color: var(--muted); }
+    select { font-size: 0.75rem; padding: 4px; border-radius: 6px; border: 1px solid var(--border); max-width: 185px; }
+    .toast { position: fixed; top: 65px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
-
-  <header>
-    <div class="header-title">
-      <span>🎧</span>
-      <span>Economic News Audio Player</span>
-    </div>
-  </header>
-
-  <div class="tabs-wrapper" id="tabsWrap"></div>
-
-  <main class="container">
-    <div id="contentArea"></div>
-  </main>
-
+  <header>🎧 Economic News Audio Player</header>
+  <div class="tabs" id="tabs"></div>
+  <main class="container" id="main"></main>
   <div class="toast" id="toast"></div>
 
-  <div class="player-dock">
-    <div class="progress-bar-wrap">
-      <div class="progress-bar" id="progressBar"></div>
+  <div class="dock">
+    <div class="bar-wrap"><div class="bar" id="bar"></div></div>
+    <div class="ctrls">
+      <button class="pill" id="spdBtn" onclick="toggleSpeed()">1.0x</button>
+      <button class="cbtn" onclick="prevU()">⏮</button>
+      <button class="pbtn" id="playBtn" onclick="togglePlay()">▶</button>
+      <button class="cbtn" onclick="nextU()">⏭</button>
+      <button class="pill on" id="modeBtn" onclick="toggleMode()">文単位</button>
     </div>
-    <div class="player-controls">
-      <button class="pill-btn" id="speedToggle" onclick="toggleSpeed()">1.0x</button>
-      <button class="ctrl-btn" onclick="prevUnit()" title="前へ">⏮</button>
-      <button class="ctrl-btn play-btn" id="playBtn" onclick="togglePlay()">▶</button>
-      <button class="ctrl-btn" onclick="nextUnit()" title="次へ">⏭</button>
-      <button class="pill-btn native-active" id="modeToggle" onclick="toggleReadMode()" title="読み上げ単位の切替">文単位</button>
-    </div>
-    <div class="settings-row">
-      <span id="chunkCounter">0 / 0</span>
-      <div>
-        <label for="voiceSelect">Voice: </label>
-        <select id="voiceSelect" onchange="changeVoice()"></select>
-      </div>
+    <div class="srow">
+      <span id="cnt">0 / 0</span>
+      <div>Voice: <select id="vSel" onchange="changeVoice()"></select></div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'econ_news_player_articles_v1';
-
-    const DEFAULT_ARTICLES = [
+    const KEY = 'econ_news_v2';
+    const DEFAULTS = [
       {
-        id: "news_1",
-        titleJa: "東京為替市場でドル円が159円60銭台で推移、160円台接近で介入警戒感",
-        titleEn: "Dollar-Yen Trades Near 159.60 Amid Intervention Vigilance",
-        source: "みんかぶFX / 外為どっとコム (2026年11月16日)",
-        contentJa: "東京外国為替市場において、ドル・円相場は1ドル＝159円60銭台を中心に推移しています。米連邦準備制度理事会（FRB）高官による追加利上げの必要性を巡る発言や米10年債利回りの上昇がドル買いを支える一方、財務相による為替動向への牽制発言や日米協調介入への警戒感から、160円の大台付近では上値が抑えられる展開となっています。",
+        titleJa: "東京為替市場：ドル円159円台後半で一進一退、160円を前に介入警戒感",
+        titleEn: "Dollar-Yen Trades in Upper 159 Range Amid Intervention Vigilance",
+        source: "東京外国為替市場レポート (2026年11月)",
+        contentJa: "東京外国為替市場において、ドル・円相場は1ドル＝159円台後半を中心に一進一退の展開が続いています。米国の底堅いインフレ指標や長期金利の上昇がドル買いを支える一方、日本の通貨当局による口頭牽制や為替介入への警戒感が160円付近での上値を抑えています。",
         chunks: [
-          "In the Tokyo foreign exchange market, ",
-          "the U.S. dollar-yen currency pair traded around the 159.60 range. ",
-          "While remarks from Federal Reserve officials regarding potential rate hikes ",
-          "and rising 10-year U.S. Treasury yields underpinned dollar demand, ",
-          "upward momentum was capped near the key 160 threshold ",
-          "amid verbal warnings from Finance Minister Satsuki Katayama ",
-          "and market vigilance over potential U.S.-Japan coordinated currency intervention."
+          "In the Tokyo foreign exchange market, ", "the U.S. dollar-yen currency pair ", "traded in a tight range ", "in the upper 159 yen level. ",
+          "While resilient U.S. inflation indicators ", "and elevated Treasury yields ", "continue to underpin dollar demand, ",
+          "strong vigilance over verbal warnings ", "and potential currency interventions ", "by Japanese monetary authorities ", "is capping upward momentum near the 160 threshold."
         ]
       },
       {
-        id: "news_2",
-        titleJa: "7〜9月期実質GDP速報値を公表、緩やかな成長継続か焦点",
-        titleEn: "Cabinet Office Releases Preliminary Q3 Real GDP Figures",
-        source: "内閣府 / みんかぶFX (2026年11月16日)",
-        contentJa: "内閣府は2026年7〜9月期（第3四半期）の実質国内総生産（GDP）1次速報値を公表します。市場予想では前期比で小幅なプラス成長が見込まれており、物価高の影響を受けつつも個人消費や企業の設備投資がどの程度景気を下支えしているか、日本銀行の今後の金融政策判断にも影響を与える重要指標として注目されています。",
+        titleJa: "7〜9月期実質GDP速報値：個人消費と設備投資が下支えし緩やかな成長維持",
+        titleEn: "Q3 Real GDP Maintains Modest Growth on Consumption and Capex",
+        source: "内閣府 四半期別GDP速報 (2026年11月)",
+        contentJa: "内閣府が公表した2026年7〜9月期の実質GDP速報値は、賃上げ効果に支えられた個人消費や企業のデジタル化投資が景気を下支えし、緩やかなプラス成長を維持しました。日本銀行の今後の金融政策判断への影響が注目されています。",
         chunks: [
-          "The Cabinet Office is scheduled to release ",
-          "preliminary real gross domestic product (GDP) figures ",
-          "for the third quarter of 2026. ",
-          "With market consensus pointing to modest quarter-on-quarter growth, ",
-          "investors are closely scrutinizing how private consumption and capital expenditures ",
-          "supported economic activity amid lingering inflation, ",
-          "as the outcome will influence the Bank of Japan's upcoming policy decisions."
+          "Preliminary real gross domestic product (GDP) data ", "for the third quarter of 2026, ", "released by the Cabinet Office, ", "showed that Japan's economy maintained modest positive growth. ",
+          "Private consumption supported by wage hikes ", "and corporate capital expenditures in digitalization ", "underpinned economic activity, ", "keeping market focus on the Bank of Japan's upcoming policy decisions."
         ]
       },
       {
-        id: "news_3",
-        titleJa: "東証の投資部門別売買動向：海外投資家が2週ぶり売り越し",
-        titleEn: "Foreign Investors Turn Net Sellers on Tokyo Stock Exchange",
-        source: "東京証券取引所 / 株探ニュース (2026年11月15日)",
-        contentJa: "東京証券取引所などがまとめた11月第1週の投資部門別売買動向によると、海外投資家は現物と先物の合算で177億円の売り越しとなり、2週ぶりの売り越しに転じました。個人投資家も売り越しとなる一方、年金積立金などの動きを反映する信託銀行は2,553億円の買い越しとなり、相場の押し目を拾う動きが確認されました。",
+        titleJa: "日銀の金融政策正常化と国内長期金利：追加利上げ時期を見極める展開",
+        titleEn: "Bond Markets Gauge Timing of Next BOJ Rate Hike",
+        source: "日本銀行・国内債券市場動向 (2026年11月)",
+        contentJa: "日本銀行が基調的な物価上昇率について2%の物価安定目標に到達したとの判断を示したことを受け、国内債券市場では追加利上げの時期を見極める動きが続いています。",
         chunks: [
-          "According to trading data by investor type for the first week of November ",
-          "compiled by the Tokyo Stock Exchange, ",
-          "foreign investors turned net sellers for the first time in two weeks, ",
-          "offloading a combined 17.7 billion yen in cash equities and futures. ",
-          "Individual investors also remained net sellers for the third consecutive week, ",
-          "whereas trust banks—often reflecting pension fund rebalancing—",
-          "posted net purchases of 255.3 billion yen, ",
-          "absorbing downward market pressure."
+          "Following the Bank of Japan's assessment ", "that underlying inflation has reached ", "its 2% price stability target, ",
+          "domestic bond markets continue to gauge ", "the timing of the next interest rate hike. ",
+          "With benchmark 10-year government bond yields ", "remaining at elevated levels, ", "analysts are closely monitoring shifts in corporate financing costs."
         ]
       }
     ];
 
-    let articles = [];
-    let currentTabIndex = 0;
-    let currentUnitIndex = 0;
-    let isPlaying = false;
-    let currentUtterance = null;
-    let playbackRate = 1.0;
-    let readBySentence = true; // true: 文単位で滑らかに読み上げ / false: チャンク単位
-    let availableVoices = [];
-    let selectedVoice = null;
-    let pauseTimer = null;
-
-    let customData = {
-      rawText: "",
-      chunks: []
-    };
-
-    function loadArticles() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            articles = parsed;
-            return;
-          }
-        }
-      } catch (e) {
-        console.error("Failed to load articles from storage", e);
-      }
-      articles = [...DEFAULT_ARTICLES];
-    }
-
-    function saveArticles() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(articles));
-      } catch (e) {
-        console.error("Failed to save articles", e);
-      }
-    }
-
-    function showToast(msg) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2500);
-    }
+    let articles = [], tab = 0, uIdx = 0, playing = false, rate = 1.0, bySentence = true;
+    let voices = [], selVoice = null, timer = null, customRaw = "", customChunks = [];
 
     function init() {
-      loadArticles();
-      renderTabs();
-      renderContent();
-      initSpeech();
+      try {
+        const s = JSON.parse(localStorage.getItem(KEY));
+        articles = (Array.isArray(s) && s.length) ? s : [...DEFAULTS];
+      } catch { articles = [...DEFAULTS]; }
+      renderTabs(); renderMain(); initSpeech();
+    }
+
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(articles)); } catch {} }
+    function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+
+    async function pasteTo(id) {
+      const el = document.getElementById(id);
+      try { const txt = await navigator.clipboard.readText(); if (txt) { el.value = txt; toast("貼り付けました"); } }
+      catch { el.focus(); toast("枠内を長押しして貼り付けてください"); }
     }
 
     function initSpeech() {
-      if (!('speechSynthesis' in window)) {
-        alert("お使いのブラウザは音声合成に対応していません。");
-        return;
-      }
-      populateVoices();
-      if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = populateVoices;
-      }
+      if (!('speechSynthesis' in window)) return;
+      const loadV = () => {
+        const score = v => {
+          const n = v.name.toLowerCase(), l = v.lang.toLowerCase();
+          return (l === 'en-us' ? 30 : 10) + (n.includes('natural') ? 50 : 0) + (n.includes('google us') ? 40 : 0) + (!v.localService ? 15 : 0);
+        };
+        voices = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('en')).sort((a,b) => score(b) - score(a));
+        const sel = document.getElementById('vSel'); sel.innerHTML = '';
+        voices.forEach((v, i) => {
+          const o = document.createElement('option'); o.value = i; o.textContent = `${v.name} (${v.lang})`;
+          if (!selVoice && i === 0) { o.selected = true; selVoice = v; }
+          sel.appendChild(o);
+        });
+      };
+      loadV(); speechSynthesis.onvoiceschanged = loadV;
     }
 
-    // ネイティブに近い高品質音声を優先スコアリングして並べる
-    function scoreVoice(voice) {
-      const name = voice.name.toLowerCase();
-      const lang = voice.lang.toLowerCase();
-      let score = 0;
-      if (lang === 'en-us' || lang === 'en_us') score += 30;
-      else if (lang === 'en-gb' || lang === 'en_gb') score += 20;
-      else if (lang.startsWith('en')) score += 10;
-
-      if (name.includes('natural')) score += 50;
-      if (name.includes('neural')) score += 45;
-      if (name.includes('google us english')) score += 40;
-      if (name.includes('google uk english')) score += 35;
-      if (name.includes('samantha') || name.includes('daniel') || name.includes('ava') || name.includes('allison')) score += 35;
-      if (name.includes('premium') || name.includes('enhanced')) score += 30;
-      if (!voice.localService) score += 15; // クラウド高品質音声を優先
-      return score;
-    }
-
-    function populateVoices() {
-      const allEn = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('en'));
-      availableVoices = allEn.sort((a, b) => scoreVoice(b) - scoreVoice(a));
-
-      const select = document.getElementById('voiceSelect');
-      const prevVoiceURI = selectedVoice ? selectedVoice.voiceURI : null;
-      select.innerHTML = '';
-
-      availableVoices.forEach((voice, i) => {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = `${voice.name} (${voice.lang})`;
-        if (prevVoiceURI && voice.voiceURI === prevVoiceURI) {
-          opt.selected = true;
-          selectedVoice = voice;
-        } else if (!prevVoiceURI && i === 0) {
-          opt.selected = true;
-          selectedVoice = voice;
-        }
-        select.appendChild(opt);
-      });
-    }
-
-    function changeVoice() {
-      const idx = document.getElementById('voiceSelect').value;
-      selectedVoice = availableVoices[idx];
-      if (isPlaying) {
-        stopAudio();
-        playUnit(currentUnitIndex);
-      }
-    }
+    function changeVoice() { selVoice = voices[document.getElementById('vSel').value]; if (playing) { stop(); playU(uIdx); } }
 
     function renderTabs() {
-      const wrap = document.getElementById('tabsWrap');
-      wrap.innerHTML = '';
-      articles.forEach((art, idx) => {
-        const btn = document.createElement('button');
-        btn.className = `tab-btn ${idx === currentTabIndex ? 'active' : ''}`;
-        btn.textContent = `News ${idx + 1}`;
-        btn.onclick = () => switchTab(idx);
-        wrap.appendChild(btn);
+      const w = document.getElementById('tabs'); w.innerHTML = '';
+      articles.forEach((_, i) => {
+        const b = document.createElement('button'); b.className = `tab ${tab === i ? 'active' : ''}`;
+        b.textContent = `News ${i + 1}`; b.onclick = () => switchTab(i); w.appendChild(b);
       });
-
-      const customBtn = document.createElement('button');
-      customBtn.className = `tab-btn ${currentTabIndex === 'custom' ? 'active' : ''}`;
-      customBtn.textContent = "自由入力";
-      customBtn.onclick = () => switchTab('custom');
-      wrap.appendChild(customBtn);
-
-      const importBtn = document.createElement('button');
-      importBtn.className = `tab-btn import-tab ${currentTabIndex === 'import' ? 'active' : ''}`;
-      importBtn.textContent = "＋ ニュース追加";
-      importBtn.onclick = () => switchTab('import');
-      wrap.appendChild(importBtn);
+      const c = document.createElement('button'); c.className = `tab ${tab === 'custom' ? 'active' : ''}`;
+      c.textContent = "自由入力"; c.onclick = () => switchTab('custom'); w.appendChild(c);
+      const a = document.createElement('button'); a.className = `tab add ${tab === 'import' ? 'active' : ''}`;
+      a.textContent = "＋ ニュース追加"; a.onclick = () => switchTab('import'); w.appendChild(a);
     }
 
-    function switchTab(index) {
-      stopAudio();
-      currentTabIndex = index;
-      currentUnitIndex = 0;
-      renderTabs();
-      renderContent();
-      updatePlayerState();
+    function switchTab(t) { stop(); tab = t; uIdx = 0; renderTabs(); renderMain(); updateUI(); }
+
+    function parseText(t) {
+      if (!t) return [];
+      return t.includes('/') ? t.split('/').map(s => s.trim() + ' ').filter(s => s.length > 1)
+        : (t.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [t]).map(s => s.trim() + ' ');
     }
 
-    function getRawChunks() {
-      if (currentTabIndex === 'custom') {
-        return customData.chunks;
-      }
-      if (typeof currentTabIndex === 'number' && articles[currentTabIndex]) {
-        return articles[currentTabIndex].chunks;
-      }
-      return [];
+    function getChunks() {
+      if (tab === 'custom') return customChunks;
+      return (typeof tab === 'number' && articles[tab]) ? articles[tab].chunks : [];
     }
 
-    // 読み上げ単位のリストを取得（文単位 or チャンク単位）
-    function getPlayUnits() {
-      const chunks = getRawChunks();
-      if (chunks.length === 0) return [];
-
-      if (!readBySentence) {
-        return chunks.map((text, idx) => ({
-          text: text.trim(),
-          chunkIndices: [idx]
-        }));
-      }
-
-      // 文末（. ! ?）ごとにチャンクを連結し、ネイティブの自然な抑揚で1文ずつ読み上げる
-      const units = [];
-      let bufferText = "";
-      let bufferIndices = [];
-
-      chunks.forEach((chunk, idx) => {
-        const cleaned = chunk.trim();
-        bufferText += (bufferText ? " " : "") + cleaned;
-        bufferIndices.push(idx);
-
-        if (/[.!?]["']?$/.test(cleaned) || idx === chunks.length - 1) {
-          units.push({
-            text: bufferText,
-            chunkIndices: [...bufferIndices]
-          });
-          bufferText = "";
-          bufferIndices = [];
-        }
+    function getUnits() {
+      const ch = getChunks();
+      if (!bySentence) return ch.map((t, i) => ({ text: t.trim(), idxs: [i] }));
+      const u = []; let buf = "", idxs = [];
+      ch.forEach((c, i) => {
+        const cl = c.trim(); buf += (buf ? " " : "") + cl; idxs.push(i);
+        if (/[.!?]["']?$/.test(cl) || i === ch.length - 1) { u.push({ text: buf, idxs: [...idxs] }); buf = ""; idxs = []; }
       });
-
-      return units;
+      return u;
     }
 
-    function parseChunksFromText(text) {
-      if (!text) return [];
-      if (text.includes('/')) {
-        return text.split('/').map(s => s.trim() + ' ').filter(s => s.length > 1);
-      } else {
-        const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
-        return sentences.map(s => s.trim() + ' ');
+    function renderMain() {
+      const m = document.getElementById('main');
+      if (tab === 'import') {
+        m.innerHTML = `
+          <div class="card">
+            <h3 style="font-size:1rem;margin-bottom:8px;color:var(--primary);">📥 JSONでニュース一括追加</h3>
+            <textarea id="jsonIn" placeholder='[{"titleJa":"...","titleEn":"...","chunks":[...]}]'></textarea>
+            <div class="row">
+              <button class="btn-sub" onclick="pasteTo('jsonIn')">📋 貼り付け</button>
+              <button class="btn" onclick="importJson()">タブに追加</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="font-size:0.95rem;margin-bottom:8px;color:var(--primary);">✍️ 手動で1記事追加</h3>
+            <input type="text" id="mJa" placeholder="日本語タイトル">
+            <input type="text" id="mEn" placeholder="英語タイトル">
+            <textarea id="mCh" style="height:90px;" placeholder="英文（ / で区切ると分割されます）"></textarea>
+            <textarea id="mTr" style="height:70px;" placeholder="日本語訳・解説"></textarea>
+            <button class="btn" style="width:100%;" onclick="addManual()">この内容で追加</button>
+          </div>`;
+        return;
       }
+      if (tab === 'custom') {
+        m.innerHTML = `
+          <div class="card">
+            <h3 style="font-size:1rem;margin-bottom:8px;">任意の英文を入力</h3>
+            <textarea id="cIn" placeholder="ここに英文を入力または貼り付け...">${customRaw}</textarea>
+            <div class="row">
+              <button class="btn-sub" onclick="pasteTo('cIn')">📋 貼り付け</button>
+              <button class="btn" onclick="applyCustom()">読み込む</button>
+            </div>
+          </div>
+          <div class="card"><div class="chunks" id="cBox"></div></div>`;
+        renderChunks(); return;
+      }
+      const art = articles[tab]; if (!art) return;
+      m.innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:8px;">
+          <div class="title-ja">${art.titleJa}</div>
+          ${articles.length > 1 ? `<button class="btn-del" onclick="delArt()">削除</button>` : ''}
+        </div>
+        <div class="title-en">${art.titleEn}</div>
+        <div class="meta">出典: ${art.source || ''}</div>
+        <div class="card"><div class="chunks" id="cBox"></div></div>
+        ${art.contentJa ? `<div class="trans"><strong>日本語解説:</strong><br>${art.contentJa}</div>` : ''}`;
+      renderChunks();
     }
 
-    function renderContent() {
-      const area = document.getElementById('contentArea');
-      area.innerHTML = '';
+    function renderChunks() {
+      const box = document.getElementById('cBox'); if (!box) return;
+      const ch = getChunks();
+      if (!ch.length) { box.innerHTML = '<span style="color:var(--muted);font-size:0.9rem;">英文を入力して「読み込む」を押してください。</span>'; updateUI(); return; }
+      box.innerHTML = '';
+      ch.forEach((c, i) => {
+        const s = document.createElement('span'); s.className = 'chunk'; s.id = `ch-${i}`; s.textContent = c;
+        s.onclick = () => { stop(); const idx = getUnits().findIndex(u => u.idxs.includes(i)); uIdx = idx >= 0 ? idx : 0; playU(uIdx); };
+        box.appendChild(s);
+      });
+      updateUI();
+    }
 
-      if (currentTabIndex === 'import') {
-        area.innerHTML = `
-          <div class="custom-input-card">
-            <h3 style="font-size:1rem;margin-bottom:6px;color:var(--primary);">📥 ニュースJSON一括取り込み</h3>
-            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;">
-    
+    function applyCustom() {
+      customRaw = document.getElementById('cIn').value.trim();
+      customChunks = parseText(customRaw); uIdx = 0; renderChunks();
+      if (customChunks.length) toast("読み込みました");
+    }
+
+    function importJson() {
+      try {
+        const raw = document.getElementById('jsonIn').value.trim().replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```$/i,'');
+        const list = JSON.parse(raw);
+        (Array.isArray(list) ? list : [list]).forEach(it => {
+          if (it.chunks) articles.push({ titleJa: it.titleJa || "経済ニュース", titleEn: it.titleEn || "News", source: it.source || "", contentJa: it.contentJa || "", chunks: it.chunks });
+        });
+        save(); toast("ニュースを追加しました"); switchTab(articles.length - 1);
+      } catch { alert("JSONの形式が正しくありません。"); }
+    }
+
+    function addManual() {
+      const ch = parseText(document.getElementById('mCh').value.trim());
+      if (!ch.length) return toast("英文を入力してください");
+      articles.push({ titleJa: document.getElementById('mJa').value || "経済ニュース", titleEn: document.getElementById('mEn').value || "News", source: "手動追加", contentJa: document.getElementById('mTr').value, chunks: ch });
+      save(); toast("追加しました"); switchTab(articles.length - 1);
+    }
+
+    function delArt() {
+      if (!confirm("この記事を削除しますか？")) return;
+      articles.splice(tab, 1); save(); switchTab(Math.max(0, tab - 1));
+    }
+
+    function togglePlay() { playing ? stop() : (getUnits().length && playU(uIdx)); }
+    function stop() { clearTimeout(timer); speechSynthesis.cancel(); playing = false; updateUI(); }
+
+    function playU(idx) {
+      const units = getUnits();
+      if (idx >= units.length) { stop(); uIdx = 0; updateUI(); return; }
+      clearTimeout(timer); speechSynthesis.cancel(); playing = true; uIdx = idx; updateUI();
+      const ut = new SpeechSynthesisUtterance(units[idx].text.replace(/\s+/g, ' '));
+      ut.rate = rate; ut.pitch = 0.98;
+      if (selVoice) { ut.voice = selVoice; ut.lang = selVoice.lang; } else ut.lang = 'en-US';
+      ut.onend = () => { if (playing) timer = setTimeout(() => playing && playU(uIdx + 1), bySentence ? 350 : 120); };
+      ut.onerror = () => stop();
+      speechSynthesis.speak(ut);
+    }
+
+    function nextU() { if (uIdx < getUnits().length - 1) { uIdx++; playing ? playU(uIdx) : updateUI(); } }
+    function prevU() { if (uIdx > 0) { uIdx--; playing ? playU(uIdx) : updateUI(); } }
+    function toggleSpeed() { const r = [0.85, 1.0, 1.15]; rate = r[(r.indexOf(rate) + 1) % 3]; document.getElementById('spdBtn').textContent = rate.toFixed(2).replace(/\.00$/,'.0') + 'x'; if (playing) playU(uIdx); }
+    function toggleMode() { const w = playing; stop(); bySentence = !bySentence; uIdx = 0; const b = document.getElementById('modeBtn'); b.textContent = bySentence ? "文単位" : "チャンク"; b.classList.toggle('on', bySentence); updateUI(); if (w) playU(0); }
+
+    function updateUI() {
+      document.getElementById('playBtn').textContent = playing ? '⏸' : '▶';
+      const units = getUnits(), tot = units.length;
+      document.getElementById('cnt').textContent = tot ? `${uIdx + 1} / ${tot}` : '0 / 0';
+      document.getElementById('bar').style.width = (tot ? ((uIdx + 1) / tot) * 100 : 0) + '%';
+      const act = (units[uIdx] && playing) ? units[uIdx].idxs : [];
+      getChunks().forEach((_, i) => { const el = document.getElementById(`ch-${i}`); if (el) el.classList.toggle('active', act.includes(i)); });
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
